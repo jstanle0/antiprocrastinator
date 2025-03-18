@@ -1,9 +1,17 @@
 Monday:
+a
+a
+a
 
 Tuesday:
+b
+b
+b
 
 Wednesday:
 
+c
 Thursday:
-
+d
 Friday:
+e
