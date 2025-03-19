@@ -1,13 +1,10 @@
 class Week:
     days = ('Monday:', 'Tuesday:', 'Wednesday:', 'Thursday:', 'Friday:')
     def __init__(self):
-        self.days = Week.days
+        self.days = {}
 
-    def nextDay(self):
-        def getNextDay():
-            for day in Week.days:
-                yield day
-        return getNextDay()
+    def addDay(self, day):
+        self.days.update(day)
 
 
 

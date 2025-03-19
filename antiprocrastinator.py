@@ -20,17 +20,24 @@ def readTasks(inputTasks):
 
 def readAvailability(inputAvailability, i=0):
     week = Week()
-    curDay = next(week.nextDay())
-    if curDay:
+    for count, day in enumerate(Week.days):
         try:
-            while inputAvailability[i].strip() != curDay:
-                print(inputAvailability[i])
+            dayAvailability = []
+            if count == len(Week.days)-1:
+                inputAvailability.append('')
+                nextDay = ''
+            else:
+                nextDay = Week.days[count + 1]
+            while inputAvailability[i].strip() != nextDay:
+                curLine = inputAvailability[i].strip()
+                if curLine != '' and curLine != day:
+                    dayAvailability.append(curLine)
                 i += 1
+            week.addDay({day: dayAvailability})
         except Exception as e:
             print(f'Error: {e}')
             sys.exit(1)
-        readAvailability(inputAvailability, i)
-    return
+    return week
 
 if __name__ == "__main__":
     if len(sys.argv) == 3:
@@ -44,11 +51,10 @@ if __name__ == "__main__":
             sys.exit(1)
         try:
             tasks = readTasks(tasksInput)
-            readAvailability(availabiltyInput)
+            availability = readAvailability(availabiltyInput)
         except Exception as e:
             print(f"Error: {e}")
             sys.exit(1)
-        print(tasks)
     else:
         printHelp()
         sys.exit(1)
