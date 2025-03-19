@@ -40,6 +40,9 @@ def readAvailability(inputAvailability, i=0):
     return week
 
 if __name__ == "__main__":
+    day = Day()
+    day.availability[0] = 1
+    print(day.availability[0])
     if len(sys.argv) == 3:
         try:
             with open(sys.argv[1], 'r') as availabilityFile:

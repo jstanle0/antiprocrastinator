@@ -9,5 +9,5 @@ class Week:
 
 
 class Day:
-    def __init__(self, availability):
-        self.availability = availability
+    def __init__(self):
+        self.availability = {x:0 for x in range(24)}
