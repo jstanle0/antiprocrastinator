@@ -2,4 +2,4 @@ Task, Time it would take (in hours), due date (mm/dd), priority(int 0-9):
 CS111 free project, 3, 04/14, 6
 American Heritage Reading, .5, 03/20, 1
 error, 2, 3/25, 9
-hi, 4, 3/30, 3
+hi, 5, 3/30, 3

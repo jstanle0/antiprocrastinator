@@ -3,7 +3,7 @@ from datetime import date, datetime
 from task import Task
 from availability import *
 import re
-from random import randint, randrange
+from random import choice
 
 def printHelp():
     print("antiprocrastinator usage:")
@@ -76,17 +76,32 @@ def readAvailability(inputAvailability, i=0):
     return week
 
 def availabilityGenerator(availability):
-    for day in availability.days:
+    #Basic linear generator
+    '''for day in availability.days:
         while day.availability:
-            yield day.availability[0], day
+            yield day.availability[0], day'''
+    #Randomized generator
+    availableDays = availability.days[:]
+    while availableDays:
+        randDay = choice(availableDays)
+        if randDay.availability:
+            yield choice(randDay.availability), randDay
+        else:
+            availableDays.remove(randDay)
 
 def processTasks(tasks, availability):
+    '''
+    Function that compares tasks to availability and assigns them to available timeslots. Mutates objects that are entered.
+    '''
     gen = availabilityGenerator(availability)
     for task in tasks:
         while task.time > 0:
-            a, day = next(gen)
-            day.addTask(a, task.name)
-            task.time -= .5
+            try:
+                a, day = next(gen)
+                day.addTask(a, task.name)
+                task.time -= .5
+            except StopIteration:
+                return
 
 if __name__ == "__main__":
     if len(sys.argv) == 3:
@@ -102,12 +117,10 @@ if __name__ == "__main__":
             tasks = readTasks(tasksInput)
             tasks.sort(key=lambda x:x.priority, reverse=True)
             availability = readAvailability(availabiltyInput)
-            for day in availability.days:
-                print(day.availability)
             processTasks(tasks, availability)
             for day in availability.days:
-                print(day.availability)
                 print(day.tasks)
+            print([task.time for task in tasks])
         except Exception as e:
             print(f"Error: {e}")
             sys.exit(1)
