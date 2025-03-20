@@ -1,17 +1,15 @@
 Monday:
-a
-a
-a
+9:30-15:00
 
 Tuesday:
-b
-b
-b
+5:30-7:30
+9:00-10:00
 
 Wednesday:
+22:00-23:00
 
-c
 Thursday:
-d
+
+
 Friday:
-e
+5:00-7:00

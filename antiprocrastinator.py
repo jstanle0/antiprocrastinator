@@ -2,6 +2,7 @@ import sys
 from datetime import date, datetime
 from task import Task
 from availability import *
+import re
 
 def printHelp():
     print("antiprocrastinator usage:")
@@ -18,6 +19,40 @@ def readTasks(inputTasks):
             raise ValueError(f"Invalid task format, line {i+2}")    
     return output
 
+def parseTime(time):
+    '''
+    >>> parseTime('5:30-6:00')
+    ['5:30']
+    >>> parseTime('12:00-14:00')
+    ['12:00', '12:30', '13:00', '13:30']
+    >>> parseTime('0:00-3:30')
+    ['0:00', '0:30', '1:00', '1:30', '2:00', '2:30', '3:00']
+    '''
+    timeRE = re.compile(r"\b([0-2]?\d:[03]0)")
+    timeRange = timeRE.findall(time)
+    if timeRange and len(timeRange)==2:
+        start = int(timeRange[0].replace(':', ''))
+        end = int(timeRange[1].replace(':', ''))
+        output = []
+        while start != end:
+            if start // 100 >= 24:
+                raise ValueError
+            if start >= 1000:
+                output.append(str(start)[:2] + ':' + str(start)[2:])
+            elif start > 30:
+                output.append(str(start)[:1] + ':' + str(start)[1:])
+            elif start: #Force edge cases since 0 is one digit
+                output.append('0:' + str(start))
+            else: 
+                output.append('0:00')
+            if start%100 == 0:
+                start += 30
+            else:
+                start += 70
+        return output
+    else:
+        raise TypeError
+
 def readAvailability(inputAvailability, i=0):
     week = Week()
     for count, day in enumerate(Week.days):
@@ -33,16 +68,13 @@ def readAvailability(inputAvailability, i=0):
                 if curLine != '' and curLine != day:
                     dayAvailability.append(curLine)
                 i += 1
-            week.addDay({day: dayAvailability})
+            week.addDay(Day(day))
         except Exception as e:
             print(f'Error: {e}')
             sys.exit(1)
     return week
 
 if __name__ == "__main__":
-    day = Day()
-    day.availability[0] = 1
-    print(day.availability[0])
     if len(sys.argv) == 3:
         try:
             with open(sys.argv[1], 'r') as availabilityFile:

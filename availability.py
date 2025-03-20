@@ -9,5 +9,6 @@ class Week:
 
 
 class Day:
-    def __init__(self):
-        self.availability = {x:0 for x in range(24)}
+    def __init__(self, name, availability):
+        self.availability = availability#{x:0 for x in range(24)}
+        self.name = name
