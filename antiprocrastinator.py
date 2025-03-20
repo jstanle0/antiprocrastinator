@@ -3,6 +3,7 @@ from datetime import date, datetime
 from task import Task
 from availability import *
 import re
+from random import randint, randrange
 
 def printHelp():
     print("antiprocrastinator usage:")
@@ -69,10 +70,24 @@ def readAvailability(inputAvailability, i=0):
                 if curLine != '' and curLine != day:
                     dayAvailability.append(parseTime(curLine))
                 i += 1
-            week.addDay(Day(day, dayAvailability))
+            week.addDay(Day(day, sum(dayAvailability,[])))
         except:
             raise ValueError(f'Invalid time format, line {i+1}')
     return week
+
+def availabilityGenerator(availability):
+    for day in availability.days:
+        for a in day.availability:
+            yield a, day
+
+def processTasks(tasks, availability):
+    gen = availabilityGenerator(availability)
+    for task in tasks:
+        while task.time > 0:
+            a, day = next(gen)
+            day.addTask(a, task.name)
+            task.time -= .5
+
 
 if __name__ == "__main__":
     if len(sys.argv) == 3:
@@ -88,7 +103,7 @@ if __name__ == "__main__":
             tasks = readTasks(tasksInput)
             tasks.sort(key=lambda x:x.priority, reverse=True)
             availability = readAvailability(availabiltyInput)
-            
+            processTasks(tasks, availability)
         except Exception as e:
             print(f"Error: {e}")
             sys.exit(1)
