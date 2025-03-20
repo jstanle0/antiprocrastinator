@@ -77,8 +77,8 @@ def readAvailability(inputAvailability, i=0):
 
 def availabilityGenerator(availability):
     for day in availability.days:
-        for a in day.availability:
-            yield a, day
+        while day.availability:
+            yield day.availability[0], day
 
 def processTasks(tasks, availability):
     gen = availabilityGenerator(availability)
@@ -87,7 +87,6 @@ def processTasks(tasks, availability):
             a, day = next(gen)
             day.addTask(a, task.name)
             task.time -= .5
-
 
 if __name__ == "__main__":
     if len(sys.argv) == 3:
@@ -103,7 +102,12 @@ if __name__ == "__main__":
             tasks = readTasks(tasksInput)
             tasks.sort(key=lambda x:x.priority, reverse=True)
             availability = readAvailability(availabiltyInput)
+            for day in availability.days:
+                print(day.availability)
             processTasks(tasks, availability)
+            for day in availability.days:
+                print(day.availability)
+                print(day.tasks)
         except Exception as e:
             print(f"Error: {e}")
             sys.exit(1)
