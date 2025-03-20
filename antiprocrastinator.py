@@ -21,6 +21,7 @@ def readTasks(inputTasks):
 
 def parseTime(time):
     '''
+    Parses range of time into list of half-hour increments
     >>> parseTime('5:30-6:00')
     ['5:30']
     >>> parseTime('12:00-14:00')
@@ -66,12 +67,11 @@ def readAvailability(inputAvailability, i=0):
             while inputAvailability[i].strip() != nextDay:
                 curLine = inputAvailability[i].strip()
                 if curLine != '' and curLine != day:
-                    dayAvailability.append(curLine)
+                    dayAvailability.append(parseTime(curLine))
                 i += 1
-            week.addDay(Day(day))
-        except Exception as e:
-            print(f'Error: {e}')
-            sys.exit(1)
+            week.addDay(Day(day, dayAvailability))
+        except:
+            raise ValueError(f'Invalid time format, line {i+1}')
     return week
 
 if __name__ == "__main__":
@@ -86,7 +86,9 @@ if __name__ == "__main__":
             sys.exit(1)
         try:
             tasks = readTasks(tasksInput)
+            tasks.sort(key=lambda x:x.priority, reverse=True)
             availability = readAvailability(availabiltyInput)
+            
         except Exception as e:
             print(f"Error: {e}")
             sys.exit(1)
