@@ -75,6 +75,17 @@ def readAvailability(inputAvailability, i=0):
             raise ValueError(f'Invalid time format, line {i+1}')
     return week
 
+def prioritize(tasks, availability):
+    tasks.sort(key=lambda x:x.priority, reverse=True)
+    today = datetime.today().weekday()
+    if today >= 5:
+        today = 0
+    for i in range(today):
+        availability.days.append(availability.days[0])
+        availability.days.pop(0)
+    print(availability.days)
+
+
 def availabilityGenerator(availability):
     #Basic linear generator
     '''for day in availability.days:
@@ -115,8 +126,8 @@ if __name__ == "__main__":
             sys.exit(1)
         try:
             tasks = readTasks(tasksInput)
-            tasks.sort(key=lambda x:x.priority, reverse=True)
             availability = readAvailability(availabiltyInput)
+            prioritize(tasks, availability)
             processTasks(tasks, availability)
             for day in availability.days:
                 print(day.tasks)
