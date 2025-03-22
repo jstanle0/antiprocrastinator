@@ -1,9 +1,11 @@
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from task import Task
 from availability import *
 import re
 from random import choice
+
+warnings = []
 
 def printHelp():
     print("antiprocrastinator usage:")
@@ -76,15 +78,29 @@ def readAvailability(inputAvailability, i=0):
     return week
 
 def prioritize(tasks, availability):
-    tasks.sort(key=lambda x:x.priority, reverse=True)
-    today = datetime.today().weekday()
-    if today >= 5:
-        today = 0
-    for i in range(today):
+    tasks.sort(key=lambda x:x.dueDate)
+    #Resort days based on what day it is
+    curWeekday = datetime.today().weekday()
+    for i in range(curWeekday):
         availability.days.append(availability.days[0])
         availability.days.pop(0)
-    print(availability.days)
-
+    #Get current day, remove all excess information
+    t = datetime.today().strftime('%d%m%y')
+    today = datetime.strptime(t, '%d%m%y')
+    #Find which tasks are due this week
+    withinWeek = today + timedelta(weeks=1)
+    for task in tasks:
+        if task.dueDate < today:
+            raise ValueError(f"Task {task.name} is overdue")
+        if task.dueDate < withinWeek:
+            dif = (task.dueDate - today).days
+            weekUntilDue = Week(availability.days[:dif + 1])
+            processTasks([task], weekUntilDue)
+            if task.time > 0:
+                warnings.append(f"Task {task.name} is unable to be completed before it's due. {task.time} hours remain.")
+                task.time = 0
+        else:
+            pass #TODO Reprioritize tasks based on length of time between now and due date
 
 def availabilityGenerator(availability):
     #Basic linear generator
@@ -112,7 +128,8 @@ def processTasks(tasks, availability):
                 day.addTask(a, task.name)
                 task.time -= .5
             except StopIteration:
-                return
+                warnings.append(f"{task.name} is unable to be completed this week. {task.time} hours remain.")
+                task.time = 0
 
 if __name__ == "__main__":
     if len(sys.argv) == 3:
@@ -131,7 +148,10 @@ if __name__ == "__main__":
             processTasks(tasks, availability)
             for day in availability.days:
                 print(day.tasks)
-            print([task.time for task in tasks])
+                print(day.availability)
+            print(f"{[task.name for task in tasks]}{[task.time for task in tasks]}")
+            for warning in warnings:
+                print(warning)
         except Exception as e:
             print(f"Error: {e}")
             sys.exit(1)

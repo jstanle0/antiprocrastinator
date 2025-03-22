@@ -13,3 +13,8 @@ Thursday:
 
 Friday:
 5:00-7:00
+
+Saturday:
+15:00-19:00
+
+Sunday:

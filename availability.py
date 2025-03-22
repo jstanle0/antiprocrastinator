@@ -1,7 +1,7 @@
 class Week:
-    days = ('Monday:', 'Tuesday:', 'Wednesday:', 'Thursday:', 'Friday:')
-    def __init__(self):
-        self.days = []
+    days = ('Monday:', 'Tuesday:', 'Wednesday:', 'Thursday:', 'Friday:', 'Saturday:', 'Sunday:')
+    def __init__(self, days=[]):
+        self.days = days
 
     def addDay(self, day):
         self.days.append(day)
