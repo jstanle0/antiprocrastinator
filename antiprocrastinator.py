@@ -6,6 +6,7 @@ import re
 from random import choice
 
 warnings = []
+timeSortRE = re.compile(r"\b(\d\d?)\b")
 
 def printHelp():
     print("antiprocrastinator usage:")
@@ -19,7 +20,7 @@ def readTasks(inputTasks):
         try:
             output.append(Task(*inputTask.split(', ')))
         except:
-            raise ValueError(f"Invalid task format, line {i+2}")    
+            raise ValueError(f"Invalid task format, line {i+2}")
     return output
 
 def parseTime(time):
@@ -59,14 +60,14 @@ def parseTime(time):
 
 def readAvailability(inputAvailability, i=0):
     week = Week()
-    for count, day in enumerate(Week.days):
+    for count, day in enumerate(Week.weekdays):
         try:
             dayAvailability = []
-            if count == len(Week.days)-1:
+            if count == len(Week.weekdays)-1:
                 inputAvailability.append('')
                 nextDay = ''
             else:
-                nextDay = Week.days[count + 1]
+                nextDay = Week.weekdays[count + 1]
             while inputAvailability[i].strip() != nextDay:
                 curLine = inputAvailability[i].strip()
                 if curLine != '' and curLine != day:
@@ -100,7 +101,11 @@ def prioritize(tasks, availability):
                 warnings.append(f"Task {task.name} is unable to be completed before it's due. {task.time} hours remain.")
                 task.time = 0
         else:
-            pass #TODO Reprioritize tasks based on length of time between now and due date
+            #Further out tasks loose priority
+            if task.dueDate > withinWeek + timedelta(weeks=1):
+                task.priority -= 3
+    #Resort tasks based on priority
+    tasks.sort(key=lambda x:x.priority, reverse=True)
 
 def availabilityGenerator(availability):
     #Basic linear generator
@@ -128,8 +133,27 @@ def processTasks(tasks, availability):
                 day.addTask(a, task.name)
                 task.time -= .5
             except StopIteration:
-                warnings.append(f"{task.name} is unable to be completed this week. {task.time} hours remain.")
-                task.time = 0
+                return
+
+def sortTasks(x):
+    '''
+    Key to sort tasks back in order based on a timestamp
+    '''
+    output = timeSortRE.findall(x[0])
+    print(output)
+    if int(output[1]) > 0:
+        return int(output[0]) + .5
+    return int(output[0])
+
+def printSchedule(week):
+    for day in week.days:
+        print(day.name)
+        sortedTasks = dict(sorted(day.tasks.items(), key=sortTasks))
+        for task in sortedTasks:
+            print(f" - {task}, {sortedTasks[task]}")
+        print('')
+    for warning in warnings:
+            print(warning)
 
 if __name__ == "__main__":
     if len(sys.argv) == 3:
@@ -146,12 +170,14 @@ if __name__ == "__main__":
             availability = readAvailability(availabiltyInput)
             prioritize(tasks, availability)
             processTasks(tasks, availability)
-            for day in availability.days:
-                print(day.tasks)
-                print(day.availability)
-            print(f"{[task.name for task in tasks]}{[task.time for task in tasks]}")
-            for warning in warnings:
-                print(warning)
+            #If an task can't be completed, warn user
+            for task in tasks:
+                if task.time > 0:
+                    warnings.append(f"{task.name} is unable to be completed this week. {task.time} hours remain.")
+            #Place breaks in leftover available slots
+            if availability.timeAvailable():
+                processTasks([Task("Take a break!", 99, "01/01", 0)], availability)
+            printSchedule(availability)
         except Exception as e:
             print(f"Error: {e}")
             sys.exit(1)
