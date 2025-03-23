@@ -11,6 +11,36 @@ timeSortRE = re.compile(r"\b(\d\d?)\b")
 def printHelp():
     print("antiprocrastinator usage:")
     print("python antiprocrastinator.py [availability-file] [tasks-file]")
+    print("-t generate task file")
+    print("-a generate availability file")
+
+def generateTasks():
+    cont = True
+    output = open(f'tasks{datetime.today().strftime("%m%d%y")}.txt', 'w')
+    output.write("Task, Time it would take (in hours), due date (mm/dd), priority(int 1-9):\n")
+    while cont:
+        info = []
+        info.append(input("What is the name of the task? "))
+        info.append(input("How long will it take (in hours)? "))
+        info.append(input("When is it due (mm/dd)? "))
+        info.append(input("How much priority does it have (int 1-9)? "))
+        output.write(f"{', '.join(info)}\n")
+        if not input("Do you wish to add more tasks? (y/n)") == 'y':
+            cont = False
+    output.close()
+
+def generateAvailability():
+    output = open(f'availability{datetime.today().strftime("%m%d%y")}.txt', 'w')
+    print("Type a range or ranges of time (format 00:00-23:59) for each weekday prompted. Type 'n' to stop.")
+    for day in Week.weekdays:
+        output.write(f"{day}\n")
+        print(day)
+        i = input("")
+        while i != 'n':
+            output.write(f"{i}\n")
+            i = input("")
+        output.write('\n')
+    output.close()
 
 def readTasks(inputTasks):
     #Remove header line
@@ -79,6 +109,9 @@ def readAvailability(inputAvailability, i=0):
     return week
 
 def prioritize(tasks, availability):
+    '''
+    Reorgainze week based off of current day, process tasks that are due this week before due date, reprioritize remaining tasks
+    '''
     tasks.sort(key=lambda x:x.dueDate)
     #Resort days based on what day it is
     curWeekday = datetime.today().weekday()
@@ -140,7 +173,6 @@ def sortTasks(x):
     Key to sort tasks back in order based on a timestamp
     '''
     output = timeSortRE.findall(x[0])
-    print(output)
     if int(output[1]) > 0:
         return int(output[0]) + .5
     return int(output[0])
@@ -156,6 +188,16 @@ def printSchedule(week):
             print(warning)
 
 if __name__ == "__main__":
+    try:
+        if sys.argv[1] == '-t':
+            generateTasks()
+            sys.exit(0)
+        if sys.argv[1] == '-a':
+            generateAvailability()
+            sys.exit(0)
+    except IndexError:
+        printHelp()
+        sys.exit(1)
     if len(sys.argv) == 3:
         try:
             with open(sys.argv[1], 'r') as availabilityFile:
