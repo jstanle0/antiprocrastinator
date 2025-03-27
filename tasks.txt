@@ -1,6 +1,6 @@
 Task, Time it would take (in hours), due date (mm/dd), priority(int 1-9):
-CS111 free project, 3, 04/14, 7
-American Heritage Reading, .5, 03/27, 7
-Fredrick Douglass Essay, 4, 3/28, 6
-Univ Project, 2, 3/24, 3
-Old Testament Project, 5, 3/30, 6
+CS111 free project, 10, 04/14, 7
+Univ Project, 4, 3/27, 3
+American Heritage Reading, .5, 03/27, 4
+Fredrick Douglass Essay, 4, 3/30, 6
+Old Testament Project, 5, 4/4, 6
