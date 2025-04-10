@@ -15,6 +15,9 @@ def printHelp():
     print("-a generate availability file")
 
 def generateTasks():
+    '''
+    Creates a formatted task file based on user input.
+    '''
     cont = True
     output = open(f'tasks{datetime.today().strftime("%m%d%y")}.txt', 'w')
     output.write("Task, Time it would take (in hours), due date (mm/dd), priority(int 1-9):\n")
@@ -27,9 +30,13 @@ def generateTasks():
         output.write(f"{', '.join(info)}\n")
         if not input("Do you wish to add more tasks? (y/n)") == 'y':
             cont = False
+    print(f"File {output.name} created!")
     output.close()
 
 def generateAvailability():
+    '''
+    Creates formatted availability file based on user input.
+    '''
     output = open(f'availability{datetime.today().strftime("%m%d%y")}.txt', 'w')
     print("Type a range or ranges of time (format 00:00-23:59) for each weekday prompted. Type 'n' to stop.")
     for day in Week.weekdays:
@@ -40,9 +47,13 @@ def generateAvailability():
             output.write(f"{i}\n")
             i = input("")
         output.write('\n')
+    print(f"File {output.name} created!")
     output.close()
 
 def readTasks(inputTasks):
+    '''
+    Converts lines in task file into task objects
+    '''
     #Remove header line
     inputTasks.pop(0)
     output = []
@@ -89,6 +100,9 @@ def parseTime(time):
         raise TypeError
 
 def readAvailability(inputAvailability, i=0):
+    '''
+    Converts information in availability file to readable data. Returns Week object with a list of Day objects.
+    '''
     week = Week()
     for count, day in enumerate(Week.weekdays):
         try:
@@ -141,6 +155,9 @@ def prioritize(tasks, availability):
     tasks.sort(key=lambda x:x.priority, reverse=True)
 
 def availabilityGenerator(availability):
+    '''
+    Creates a generator that returns availible time slots in which a task can be added
+    '''
     #Basic linear generator
     '''for day in availability.days:
         while day.availability:
@@ -178,6 +195,9 @@ def sortTasks(x):
     return int(output[0])
 
 def printSchedule(week):
+    '''
+    Prints the task assigned to each timeslot per day in a week
+    '''
     for day in week.days:
         print(day.name)
         sortedTasks = dict(sorted(day.tasks.items(), key=sortTasks))
